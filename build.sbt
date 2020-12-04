@@ -51,9 +51,10 @@ val defaultScalacOptions = Seq(
   "-Ypatmat-exhaust-depth", "off"
 )
 
-val fastParse        = "com.lihaoyi"                   %% "fastparse" % "2.2.2"
-val utest            = "com.github.japgolly.fork"      %% "utest"     % "1.0.3"
-val microlibTestUtil = "com.github.japgolly.microlibs" %% "test-util" % "2.5"
+val fastParse          = "com.lihaoyi"                   %% "fastparse"  % "2.2.2"
+val utest              = "com.github.japgolly.fork"      %% "utest"      % "1.0.3"
+val microlibTestStdlib = "com.github.japgolly.microlibs" %% "stdlib-ext" % "2.5"
+val microlibTestUtil   = "com.github.japgolly.microlibs" %% "test-util"  % "2.5"
 
 lazy val root = (project in file("."))
   .settings(
@@ -63,6 +64,7 @@ lazy val root = (project in file("."))
 
     libraryDependencies ++= Seq(
       fastParse,
+      microlibTestStdlib,
       utest % Test,
       microlibTestUtil % Test),
 
