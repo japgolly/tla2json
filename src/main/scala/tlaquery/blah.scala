@@ -1,0 +1,3 @@
+package tlaquery
+
+object X
