@@ -7,9 +7,10 @@ import sourcecode.Line
 object TestUtil extends japgolly.microlibs.testutil.TestUtil {
 
   implicit def univEqStepDesc: UnivEq[Step.Desc] = UnivEq.derive
+  implicit def univEqValue: UnivEq[Value] = UnivEq.derive
 
   def timeLimited[A](task: => A)(implicit l: Line): A =
-    runWithTimeLimit(Duration.ofSeconds(1))(task)
+    runWithTimeLimit(Duration.ofSeconds(2))(task)
 
   def runWithTimeLimit[A](maxDur: Duration)(task: => A)(implicit l: Line): A =
     runAttemptWithTimeLimit(maxDur)(task).getOrElse(fail("Task didn't complete within " + maxDur))

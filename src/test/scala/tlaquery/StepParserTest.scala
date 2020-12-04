@@ -3,12 +3,12 @@ package tlaquery
 import utest._
 import TestUtil._
 
-object ParserTest extends TestSuite {
+object StepParserTest extends TestSuite {
 
   override def tests = Tests {
 
     "steps" - {
-      val steps = timeLimited(StepParser(TestData1.output))
+      val steps = timeLimited(Step.parse(TestData1.output))
 
       "len" - assertEq(steps.length, 43)
 
