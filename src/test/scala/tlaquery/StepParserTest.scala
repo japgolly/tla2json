@@ -8,17 +8,9 @@ object StepParserTest extends TestSuite {
   override def tests = Tests {
 
     "steps" - {
-      val steps = TestData1.stepsStr()
+      import TestData1.steps
 
       "len" - assertEq(steps.length, 43)
-
-      "props" - {
-        for (i <- steps.indices) {
-          val s = steps(i)
-          assertEq(s.desc == Step.Desc.Initial, i == 0)
-          assertEq(s.no, i + 1)
-        }
-      }
 
       "actionNames" - {
         assertEq(steps(2).desc, Step.Desc.Action("TabNew"))

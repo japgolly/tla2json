@@ -4,6 +4,9 @@ final case class Step[+A](no: Int, desc: Step.Desc, state: A) {
 
   def map[B](f: A => B): Step[B] =
     copy(state = f(state))
+
+  def parseState(implicit ev: Step[A] <:< Step[String]): Step[State[Value]] =
+    ev(this).map(State.parse(_).map(Value.parse))
 }
 
 object Step {
@@ -21,4 +24,9 @@ object Step {
     content = preSteps.replaceFirstIn(content, "")
     fastparse.parse(content, steps(_)).get.value
   }
+
+  type Trace = Vector[Step[State[Value]]]
+
+  def parseTrace(tlaOutput: String): Trace =
+    parseMany(tlaOutput).map(_.parseState)
 }

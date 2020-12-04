@@ -2,6 +2,7 @@ package tlaquery
 
 import utest._
 import TestUtil._
+import scala.collection.immutable.VectorMap
 import sourcecode.Line
 
 object StateParserTest extends TestSuite {
@@ -15,13 +16,13 @@ object StateParserTest extends TestSuite {
 
     "soleSingleLine" - {
       val actual = """browsers = (b1 :> << >>)"""
-      val expect = State(Map("browsers" -> """(b1 :> << >>)"""))
+      val expect = State(VectorMap("browsers" -> """(b1 :> << >>)"""))
       assertParseOk(actual, expect)
     }
 
     "oneSingleLine" - {
       val actual = """/\ browsers = (b1 :> << >>)"""
-      val expect = State(Map("browsers" -> """(b1 :> << >>)"""))
+      val expect = State(VectorMap("browsers" -> """(b1 :> << >>)"""))
       assertParseOk(actual, expect)
     }
 
@@ -34,7 +35,7 @@ object StateParserTest extends TestSuite {
           |/\ remote = {}
           |/\ workers = (w1 :> [status |-> "-"] @@ w2 :> [status |-> "-"])
           |""".stripMargin
-      val expect = State(Map(
+      val expect = State(VectorMap(
           "browsers" -> """(b1 :> << >>)""",
           "network" -> """<<>>""",
           "tabs" -> """(t1 :> [status |-> "-"] @@ t2 :> [status |-> "-"])""",
@@ -54,7 +55,7 @@ object StateParserTest extends TestSuite {
           |     to |-> t2,
           |     id |-> 2 ] >>
           |""".stripMargin
-      val expect = State(Map(
+      val expect = State(VectorMap(
           "network" -> actual.trim.dropWhile(_ != '<'),
       ))
       assertParseOk(actual, expect)
@@ -79,7 +80,7 @@ object StateParserTest extends TestSuite {
           |/\ xxxx_123 = ( t1 :> [drafts |-> {}, worker |-> w2, status |-> "loading", awaiting |-> {}] @@
           |  t2 :> [drafts |-> {}, worker |-> w1, status |-> "loading", awaiting |-> {}] )
           |""".stripMargin
-      val expect = State(Map(
+      val expect = State(VectorMap(
         "tabs" ->
           """( t1 :> [status |-> "-"] @@
             |  t2 :>

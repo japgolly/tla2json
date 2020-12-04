@@ -1,11 +1,12 @@
 package tlaquery
 
 import japgolly.microlibs.stdlib_ext.StdlibExt._
+import scala.collection.immutable.VectorMap
 
-final case class State[+A](variables: Map[String, A]) {
+final case class State[+A](variables: VectorMap[String, A]) {
 
   def map[B](f: A => B): State[B] =
-    State(variables.mapValuesNow(f))
+    State(variables.iterator.map(_.map2(f)).to(VectorMap))
 }
 
 object State {

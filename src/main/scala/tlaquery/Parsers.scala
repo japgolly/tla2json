@@ -3,6 +3,7 @@ package tlaquery
 import fastparse._
 import japgolly.microlibs.stdlib_ext.StdlibExt._
 import scala.annotation._
+import scala.collection.immutable.VectorMap
 
 object Parsers {
 
@@ -114,7 +115,7 @@ object Parsers {
         .map(dropRightWhile(_, isWhitespace))
 
     def state[_: P]: P[State[String]] =
-      P(variable.rep(sep = blankLine.rep)).map(kvs => State(kvs.toMap))
+      P(variable.rep(sep = blankLine.rep)).map(kvs => State(kvs.to(VectorMap)))
 
     def main[_: P]: P[State[String]] =
       P(state ~ End)

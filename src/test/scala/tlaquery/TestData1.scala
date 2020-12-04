@@ -1,5 +1,7 @@
 package tlaquery
 
+object TestData1Test extends TestData.PropTest(TestData1)
+
 object TestData1 extends TestData {
 
   val output =
