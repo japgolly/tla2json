@@ -6,6 +6,7 @@ import sourcecode.Line
 
 object TestUtil extends japgolly.microlibs.testutil.TestUtil {
 
+  implicit def univEqState[A: UnivEq]: UnivEq[State[A]] = UnivEq.derive
   implicit def univEqStepDesc: UnivEq[Step.Desc] = UnivEq.derive
   implicit def univEqValue: UnivEq[Value] = UnivEq.derive
 

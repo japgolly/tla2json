@@ -2,6 +2,7 @@ package tlaquery
 
 import fastparse._
 import japgolly.microlibs.stdlib_ext.StdlibExt._
+import scala.annotation._
 
 object Parsers {
 
@@ -14,6 +15,43 @@ object Parsers {
   object Shared {
     import fastparse.NoWhitespace._
 
+    def dropRightWhile(s: String, drop: Char => Boolean): String = {
+      var i = s.length
+      var n = 0
+      while (i > 0) {
+        i -= 1
+        val c = s(i)
+        if (drop(c))
+          n += 1
+        else
+          i = 0
+      }
+      if (n > 0)
+        s.dropRight(n)
+      else
+        s
+    }
+
+    // Faster version of Character.isWhitespace
+    // Generated with:
+    // (1 to 65535).filter(i => i!=32 && Character.isWhitespace(i.toChar)).map("'\\u%04x'".format(_)).mkString("case ' ' | ", " | ", " => true")
+    def isWhitespace(c: Char): Boolean =
+      (c: @switch) match {
+        case ' '
+             | '\u0009' | '\u000a' | '\u000b' | '\u000c' | '\u000d' | '\u001c' | '\u001d' | '\u001e' | '\u001f'
+             | '\u1680' | '\u180e' | '\u2000' | '\u2001' | '\u2002' | '\u2003' | '\u2004' | '\u2005' | '\u2006'
+             | '\u2008' | '\u2009' | '\u200a' | '\u2028' | '\u2029' | '\u205f' | '\u3000' =>
+          true
+        case _ =>
+          false
+      }
+
+    def WS[_: P]: P[Unit] =
+      P(CharPred(isWhitespace).rep(1))
+
+    def OWS[_: P]: P[Unit] =
+      P(CharPred(isWhitespace).rep)
+
     def EOL[_: P]: P[Unit] =
       P("\n" | End)
 
@@ -22,6 +60,9 @@ object Parsers {
 
     def lineNE[_: P]: P[String] =
       line.filter(_.nonEmpty)
+
+    def blankLine[_: P]: P[Unit] =
+      P(!End ~ OWS ~ EOL)
 
     def number[_: P]: P[Int] =
       P(CharIn("0-9").rep(1).!.map(_.toInt))
@@ -58,6 +99,25 @@ object Parsers {
 
     def steps[_: P]: P[Vector[Step[String]]] =
       P(step.rep(sep = "\n").map(_.toVector) ~/ ("\n" | End))
+  }
+
+  // ===================================================================================================================
+  object States {
+    import fastparse.NoWhitespace._
+    import Shared._
+
+    def variable[_: P]: P[(String, String)] =
+      P(("""/\""" ~ WS).? ~ ident ~ WS ~ "=" ~ WS ~ body)
+
+    def body[_: P]: P[String] =
+      P((line ~ (" " ~ lineNE.filter(!_.forall(isWhitespace))).rep).!)
+        .map(dropRightWhile(_, isWhitespace))
+
+    def state[_: P]: P[State[String]] =
+      P(variable.rep(sep = blankLine.rep)).map(kvs => State(kvs.toMap))
+
+    def main[_: P]: P[State[String]] =
+      P(state ~ End)
   }
 
   // ===================================================================================================================
