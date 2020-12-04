@@ -8,7 +8,7 @@ object StepParserTest extends TestSuite {
   override def tests = Tests {
 
     "steps" - {
-      val steps = timeLimited(Step.parse(TestData1.output))
+      val steps = TestData1.stepsStr()
 
       "len" - assertEq(steps.length, 43)
 

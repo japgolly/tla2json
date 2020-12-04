@@ -9,6 +9,21 @@ object TestUtil extends japgolly.microlibs.testutil.TestUtil {
   implicit def univEqStepDesc: UnivEq[Step.Desc] = UnivEq.derive
   implicit def univEqValue: UnivEq[Value] = UnivEq.derive
 
+  def timeLimitedLazy[A](task: => A)(implicit l: Line): () => A = {
+    val lock = new AnyRef
+    var result = Option.empty[A]
+    () =>
+      result.getOrElse {
+        lock.synchronized {
+          result.getOrElse {
+            val a = timeLimited(task)
+            result = Some(a)
+            a
+          }
+        }
+      }
+  }
+
   def timeLimited[A](task: => A)(implicit l: Line): A =
     runWithTimeLimit(Duration.ofSeconds(2))(task)
 

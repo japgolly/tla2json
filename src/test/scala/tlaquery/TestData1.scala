@@ -1,6 +1,6 @@
 package tlaquery
 
-object TestData1 {
+object TestData1 extends TestData {
 
   val output =
     """

@@ -1,6 +1,10 @@
 package tlaquery
 
-final case class Step[+A](no: Int, desc: Step.Desc, state: A)
+final case class Step[+A](no: Int, desc: Step.Desc, state: A) {
+
+  def map[B](f: A => B): Step[B] =
+    copy(state = f(state))
+}
 
 object Step {
 
@@ -11,7 +15,7 @@ object Step {
     final case class Action(name: String) extends Desc
   }
 
-  def parse(tlaOutput: String): Vector[Step[String]] = {
+  def parseMany(tlaOutput: String): Vector[Step[String]] = {
     import Parsers.Steps._
     var content = Parsers.preprocess(tlaOutput)
     content = preSteps.replaceFirstIn(content, "")
