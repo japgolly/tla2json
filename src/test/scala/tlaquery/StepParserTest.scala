@@ -13,13 +13,13 @@ object StepParserTest extends TestSuite {
       "len" - assertEq(steps.length, 43)
 
       "actionNames" - {
-        assertEq(steps(2).desc, Step.Desc.Action("TabNew"))
-        assertEq(steps(21).desc, Step.Desc.Action("TabRecvDraftsFromWorker"))
-        assertEq(steps(42).desc, Step.Desc.Action("WorkerRecvRemoteAck"))
+        assertEq(steps.no(3).desc, Step.Desc.Action("TabNew"))
+        assertEq(steps.no(22).desc, Step.Desc.Action("TabRecvDraftsFromWorker"))
+        assertEq(steps.no(43).desc, Step.Desc.Action("WorkerRecvRemoteAck"))
       }
 
       "state1" -
-        assertEq(steps(0).state,
+        assertEq(steps.no(1).state,
           """/\ browsers = (b1 :> << >>)
             |/\ network = <<>>
             |/\ tabs = (t1 :> [status |-> "-"] @@ t2 :> [status |-> "-"])
@@ -29,14 +29,14 @@ object StepParserTest extends TestSuite {
         )
 
       "state7" -
-        assertEq(steps(6).state,
+        assertEq(steps.no(7).state,
           """/\ tabs = ( t1 :> [worker |-> w2, status |-> "clean"] @@
             |  t2 :> [worker |-> w1, status |-> "clean"] )
             |""".stripMargin.trim
         )
 
       "state43" -
-        assertEq(steps(42).state,
+        assertEq(steps.no(43).state,
           """/\ network = <<>>
             |/\ workers = ( w1 :>
             |      [ drafts |-> {[worker |-> w1, time |-> 1, prov |-> (w1 :> 0 @@ w2 :> 1)]},

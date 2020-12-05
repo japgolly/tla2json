@@ -98,8 +98,8 @@ object Parsers {
       P("State " ~ number ~ ": <" ~/ desc ~ ">\n" ~/ state)
         .map { case (n, d, s) => Step(n, d, s) }
 
-    def steps[_: P]: P[Vector[Step[String]]] =
-      P(step.rep(sep = "\n").map(_.toVector) ~/ ("\n" | End))
+    def steps[_: P]: P[Steps[String]] =
+      P(step.rep(sep = "\n").map(ss => tlaquery.Steps(ss.toVector)) ~/ ("\n" | End))
   }
 
   // ===================================================================================================================

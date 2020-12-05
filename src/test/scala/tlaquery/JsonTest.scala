@@ -7,11 +7,10 @@ import utest._
 object JsonTest extends TestSuite {
   import Value._
 
-  private def spotCheckTestData(td: TestData, stateNo: Int)
+  private def spotCheckTestData(td: TestData, stepNo: Int)
                                (expect: String)
                                (implicit l: Line): Unit = {
-    assert(stateNo > 0)
-    val actual = td.traceJson(stateNo - 1).state.toJson
+    val actual = td.traceJson.no(stepNo).state.toJson
     assertJson(actual, expect)
   }
 

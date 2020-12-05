@@ -17,16 +17,4 @@ object Step {
     case object Initial extends Desc
     final case class Action(name: String) extends Desc
   }
-
-  def parseMany(tlaOutput: String): Vector[Step[String]] = {
-    import Parsers.Steps._
-    var content = Parsers.preprocess(tlaOutput)
-    content = preSteps.replaceFirstIn(content, "")
-    fastparse.parse(content, steps(_)).get.value
-  }
-
-  type Trace = Vector[Step[State[Value]]]
-
-  def parseTrace(tlaOutput: String): Trace =
-    parseMany(tlaOutput).map(_.parseState)
 }

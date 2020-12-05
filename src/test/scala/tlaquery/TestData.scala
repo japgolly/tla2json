@@ -8,18 +8,30 @@ abstract class TestData {
 
   val output: String
 
-  private final val _steps: () => Vector[Step[String]] =
-    timeLimitedLazy(Step.parseMany(output))
+  private final val _steps: () => Steps[String] =
+    timeLimitedLazy(Steps.parse(output))
 
-  private final val _trace: () => Step.Trace =
+  private final val _trace: () => Steps.Trace =
     timeLimitedLazy(_steps().map(_.parseState))
 
   private final val _traceJson =
-    timeLimitedLazy(_trace().map(_.map(_.map(_.toJson))))
+    timeLimitedLazy(_trace().withJsonValues)
 
-  final def steps = _steps()
-  final def trace = _trace()
-  final def traceJson = _traceJson()
+  private final val _fullTraceJson =
+    timeLimitedLazy(_traceJson().withFullStatePerStep)
+
+  private final val _fullTrace =
+    timeLimitedLazy(_trace().withFullStatePerStep)
+
+  private final val _fullSteps =
+    timeLimitedLazy(_steps().mapSteps(State.parse).withFullStatePerStep)
+
+  final def steps         = _steps()
+  final def trace         = _trace()
+  final def traceJson     = _traceJson()
+  final def fullTraceJson = _fullTraceJson()
+  final def fullTrace     = _fullTrace()
+  final def fullSteps     = _fullSteps()
 }
 
 object TestData {
@@ -36,8 +48,9 @@ object TestData {
       }
 
       "eachStep" - {
-        for (i <- steps.indices) {
-          val s = steps(i)
+        val ss = steps.values
+        for (i <- ss.indices) {
+          val s = ss(i)
           assertEq(s.desc == Step.Desc.Initial, i == 0)
           assertEq(s.no, i + 1)
         }
@@ -59,7 +72,7 @@ object TestData {
           })
 
         val actual =
-          steps2.iterator.map { s =>
+          steps2.values.iterator.map { s =>
             val desc = s.desc match {
               case Desc.Initial      => "Initial"
               case Desc.Action(name) => name
