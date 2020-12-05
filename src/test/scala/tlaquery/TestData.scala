@@ -14,8 +14,12 @@ abstract class TestData {
   private final val _trace: () => Step.Trace =
     timeLimitedLazy(_steps().map(_.parseState))
 
+  private final val _traceJson =
+    timeLimitedLazy(_trace().map(_.map(_.map(_.toJson))))
+
   final def steps = _steps()
   final def trace = _trace()
+  final def traceJson = _traceJson()
 }
 
 object TestData {

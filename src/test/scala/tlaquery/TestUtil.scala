@@ -1,5 +1,6 @@
 package tlaquery
 
+import io.circe.Json
 import java.time.Duration
 import java.util.{Timer, TimerTask}
 import sourcecode.Line
@@ -9,6 +10,14 @@ object TestUtil extends japgolly.microlibs.testutil.TestUtil {
   implicit def univEqState[A: UnivEq]: UnivEq[State[A]] = UnivEq.derive
   implicit def univEqStepDesc: UnivEq[Step.Desc] = UnivEq.derive
   implicit def univEqValue: UnivEq[Value] = UnivEq.derive
+  implicit def univEqJson: UnivEq[Json] = UnivEq.force
+
+  def assertJson(actual: Json, expect: String)(implicit l: Line): Unit = {
+    val e = io.circe.parser.parse(expect).getOrThrow()
+    if (expect == "666")
+      println(actual.noSpaces)
+    assertEq(actual, e)
+  }
 
   def timeLimitedLazy[A](task: => A)(implicit l: Line): () => A = {
     val lock = new AnyRef

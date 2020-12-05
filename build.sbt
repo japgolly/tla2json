@@ -51,10 +51,15 @@ val defaultScalacOptions = Seq(
   "-Ypatmat-exhaust-depth", "off"
 )
 
-val fastParse          = "com.lihaoyi"                   %% "fastparse"  % "2.2.2"
-val utest              = "com.github.japgolly.fork"      %% "utest"      % "1.0.3"
-val microlibTestStdlib = "com.github.japgolly.microlibs" %% "stdlib-ext" % "2.5"
-val microlibTestUtil   = "com.github.japgolly.microlibs" %% "test-util"  % "2.5"
+val circeVer    = "0.12.3"
+val microlibVer = "2.5"
+
+val circeCore          = "io.circe"                      %% "circe-core"   % circeVer
+val circeParser        = "io.circe"                      %% "circe-parser" % circeVer
+val fastParse          = "com.lihaoyi"                   %% "fastparse"    % "2.2.2"
+val microlibTestStdlib = "com.github.japgolly.microlibs" %% "stdlib-ext"   % microlibVer
+val microlibTestUtil   = "com.github.japgolly.microlibs" %% "test-util"    % microlibVer
+val utest              = "com.github.japgolly.fork"      %% "utest"        % "1.0.3"
 
 lazy val root = (project in file("."))
   .settings(
@@ -63,9 +68,11 @@ lazy val root = (project in file("."))
     scalacOptions := defaultScalacOptions,
 
     libraryDependencies ++= Seq(
+      circeCore,
       fastParse,
       microlibTestStdlib,
       utest % Test,
+      circeParser % Test,
       microlibTestUtil % Test),
 
     testFrameworks := List(new TestFramework("utest.runner.Framework"))
