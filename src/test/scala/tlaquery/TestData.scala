@@ -36,10 +36,13 @@ abstract class TestData {
 
 object TestData {
 
-  abstract class PropTest(testData: TestData) extends TestSuite {
-    import testData._
+  abstract class PropTest extends TestSuite {
+
+    val testData: TestData
+    def firstPostStateLine: String
 
     final override def tests = Tests {
+      import testData._
 
       "totalSteps" - {
         val r = "^State \\d+:.*".r.pattern
@@ -84,7 +87,7 @@ object TestData {
 
         val expect =
           output
-            .slice(output.indexOf("\nState 1:"), output.indexOf("\nThe number of states generated:"))
+            .slice(output.indexOf("\nState 1:"), output.indexOf("\n" + firstPostStateLine))
             .replaceAll("(?m)^(State \\d+: <.+?) .*>$", "$1>")
             .trim
 

@@ -1,6 +1,9 @@
 package tlaquery
 
-object TestData1Test extends TestData.PropTest(TestData1)
+object TestData1Test extends TestData.PropTest {
+  override val testData = TestData1
+  override def firstPostStateLine = "The number of states generated:"
+}
 
 object TestData1 extends TestData {
 
