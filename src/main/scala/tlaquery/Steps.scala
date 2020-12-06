@@ -47,6 +47,9 @@ final case class Steps[+A](values: Vector[Step[A]]) {
         }
       Steps(newSteps)
     }
+
+  def toJson(implicit ev: Steps[A] <:< Steps[State[Json]]): Json =
+    Json.arr(ev(this).values.map(_.toJson): _*)
 }
 
 object Steps {

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+root="$(dirname "$0")"
+exec java -jar "$root"/target/scala-2.13/tla-query.jar "$@"

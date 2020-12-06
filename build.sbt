@@ -59,9 +59,11 @@ val circeParser        = "io.circe"                      %% "circe-parser" % cir
 val fastParse          = "com.lihaoyi"                   %% "fastparse"    % "2.2.2"
 val microlibTestStdlib = "com.github.japgolly.microlibs" %% "stdlib-ext"   % microlibVer
 val microlibTestUtil   = "com.github.japgolly.microlibs" %% "test-util"    % microlibVer
+val scopt              = "com.github.scopt"              %% "scopt"        % "4.0.0"
 val utest              = "com.github.japgolly.fork"      %% "utest"        % "1.0.3"
 
 lazy val root = (project in file("."))
+  .enablePlugins(BuildInfoPlugin)
   .settings(
     name := "tla-query",
 
@@ -71,9 +73,17 @@ lazy val root = (project in file("."))
       circeCore,
       fastParse,
       microlibTestStdlib,
+      scopt,
       utest % Test,
       circeParser % Test,
-      microlibTestUtil % Test),
+      microlibTestUtil % Test
+    ),
 
-    testFrameworks := List(new TestFramework("utest.runner.Framework"))
+    buildInfoKeys := Seq[BuildInfoKey](version),
+    buildInfoPackage := "tlaquery",
+
+    testFrameworks := List(new TestFramework("utest.runner.Framework")),
+
+    // logLevel in assembly := Level.Debug,
+    assemblyJarName in assembly := name.value + ".jar"
   )
