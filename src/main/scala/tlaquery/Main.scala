@@ -16,6 +16,7 @@ object Main {
       parseValue: Boolean      = false,
       fullTrace : Boolean      = false,
       indentJson: Boolean      = false,
+      sortKeys  : Boolean      = false,
       inputFile : Option[File] = None,
     )
 
@@ -26,11 +27,12 @@ object Main {
   private val optParser = new scopt.OptionParser[Options](cliName) {
     head(displayName, "v" + BuildInfo.version)
 
-    opt[Unit]('t', "trace").action_(_.copy(parseTrace = true)).text("Parse input as a trace (default)")
-    opt[Unit]('s', "state").action_(_.copy(parseState = true)).text("Parse input as a state")
-    opt[Unit]('v', "value").action_(_.copy(parseValue = true)).text("Parse input as a value")
-    opt[Unit]('f', "full").action_(_.copy(fullTrace = true)).text("Convert a diff-trace back into a full trace")
-    opt[Unit]('i', "indent").action_(_.copy(indentJson = true)).text("Indent JSON output")
+    opt[Unit]('t', "trace" ).action_(_.copy(parseTrace = true)).text("Parse input as a trace (default)")
+    opt[Unit]('s', "state" ).action_(_.copy(parseState = true)).text("Parse input as a state")
+    opt[Unit]('v', "value" ).action_(_.copy(parseValue = true)).text("Parse input as a value")
+    opt[Unit]('f', "full"  ).action_(_.copy(fullTrace  = true)).text("Convert a diff-trace back into a full trace")
+    opt[Unit]('i', "indent").action_(_.copy(indentJson = true)).text("Indent and pretty-print JSON output")
+    opt[Unit]('S', "sort"  ).action_(_.copy(sortKeys   = true)).text("Output the fields of each object with the keys in sorted order")
 
     arg[File]("<input file>")
       .optional()
@@ -86,10 +88,12 @@ object Main {
       }
 
     def result: String =
-      if (opts.indentJson)
-        json.spaces2
-      else
-        json.noSpaces
+      (opts.indentJson, opts.sortKeys) match {
+        case (false, false) => json.noSpaces
+        case (false, true ) => json.noSpacesSortKeys
+        case (true , false) => json.spaces2
+        case (true , true ) => json.spaces2SortKeys
+      }
 
     println(result)
   }
