@@ -98,14 +98,23 @@ object Parsers {
     def state[_: P]: P[String] =
       lineNE.rep.map(_.mkString("\n"))
 
+    def stepDecl[_: P]: P[Int] =
+      P("State " ~ number ~ ": ")
+
     def step[_: P]: P[Step[String]] =
-      P("State " ~ number ~ ": " ~/ desc).flatMap {
+      P(stepDecl  ~/ desc).flatMap {
         case (n, d@ Desc.Stuttering) => Pass.map(_ => Step(n, d, ""))
         case (n, d)                  => P("\n" ~/ state).map(Step(n, d, _))
       }
 
+    def stepSep[_: P]: P[Unit] =
+      P("\n" ~ (!stepDecl ~ line).rep(0))
+
     def steps[_: P]: P[Steps[String]] =
-      P(step.rep(sep = "\n").map(ss => tlaquery.Steps(ss.toVector)) ~/ ("\n" | End))
+      P(step.rep(sep = stepSep)).map(ss => tlaquery.Steps(ss.toVector))
+
+    def main[_: P]: P[Steps[String]] =
+      P(steps) // Deliberately not adding ` ~ End` here because we want to ignore  the tail.
   }
 
   // ===================================================================================================================

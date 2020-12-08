@@ -41,8 +41,14 @@ object TestData {
     val testData: TestData
     def firstPostStateLine: String
 
+    import testData._
+
+    def traceLines: String =
+      output.slice(
+        output.indexOf("\nState 1:"),
+        output.indexOf("\n" + firstPostStateLine))
+
     final override def tests = Tests {
-      import testData._
 
       "totalSteps" - {
         val r = "^State \\d+:.*".r.pattern
@@ -87,8 +93,7 @@ object TestData {
           }.mkString("\n\n")
 
         val expect =
-          output
-            .slice(output.indexOf("\nState 1:"), output.indexOf("\n" + firstPostStateLine))
+          traceLines
             .replaceAll("(?m)^(State \\d+: <.+?) .*>$", "$1>")
             .trim
 

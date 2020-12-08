@@ -61,7 +61,7 @@ object Steps {
       apply(Vector.empty)
     else {
       content = preSteps.replaceFirstIn(content, "")
-      fastparse.parse(content, steps(_)).get.value
+      fastparse.parse(content, main(_)).get.value
     }
   }
 
