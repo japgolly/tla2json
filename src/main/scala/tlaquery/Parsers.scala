@@ -48,16 +48,16 @@ object Parsers {
       }
 
     def WS[_: P]: P[Unit] =
-      P(CharPred(isWhitespace).rep(1))
+      P(CharsWhile(isWhitespace, 1))
 
     def OWS[_: P]: P[Unit] =
-      P(CharPred(isWhitespace).rep)
+      P(CharsWhile(isWhitespace, 0))
 
     def EOL[_: P]: P[Unit] =
       P("\n" | End)
 
     def line[_: P]: P[String] =
-      P(!End ~ CharPred(_ != '\n').rep.! ~ EOL)
+      P(!End ~ CharsWhile(_ != '\n', 0).! ~ EOL)
 
     def lineNE[_: P]: P[String] =
       line.filter(_.nonEmpty)
@@ -87,7 +87,7 @@ object Parsers {
       P("<Initial predicate>").map(_ => Desc.Initial)
 
     def descAction[_: P]: P[Desc] =
-      P("<" ~ ident.! ~ " line " ~ CharPred(_ != '>').rep ~ ">").map(Desc.Action)
+      P("<" ~ ident.! ~ " line " ~ CharsWhile(_ != '>') ~ ">").map(Desc.Action)
 
     def descStuttering[_: P]: P[Desc] =
       P("Stuttering").map(_ => Desc.Stuttering)
