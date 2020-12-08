@@ -11,13 +11,14 @@ object Main {
   private final val displayName = cliName
 
   final case class Options(
-      parseTrace: Boolean      = false,
-      parseState: Boolean      = false,
-      parseValue: Boolean      = false,
-      fullTrace : Boolean      = false,
-      indentJson: Boolean      = false,
-      sortKeys  : Boolean      = false,
-      inputFile : Option[File] = None,
+      parseTrace  : Boolean      = false,
+      parseState  : Boolean      = false,
+      parseValue  : Boolean      = false,
+      fullTrace   : Boolean      = false,
+      fullLastStep: Boolean      = false,
+      indentJson  : Boolean      = false,
+      sortKeys    : Boolean      = false,
+      inputFile   : Option[File] = None,
     )
 
   private implicit class ExtScoptOptionDef[A, C](private val self: scopt.OptionDef[A, C]) extends AnyVal {
@@ -27,12 +28,13 @@ object Main {
   private val optParser = new scopt.OptionParser[Options](cliName) {
     head(displayName, "v" + BuildInfo.version)
 
-    opt[Unit]('T', "trace" ).action_(_.copy(parseTrace = true)).text("Parse input as a trace (default)")
-    opt[Unit]('S', "state" ).action_(_.copy(parseState = true)).text("Parse input as a state")
-    opt[Unit]('V', "value" ).action_(_.copy(parseValue = true)).text("Parse input as a value")
-    opt[Unit]('f', "full"  ).action_(_.copy(fullTrace  = true)).text("Convert a diff-trace back into a full trace")
-    opt[Unit]('i', "indent").action_(_.copy(indentJson = true)).text("Indent and pretty-print JSON output")
-    opt[Unit]('s', "sort"  ).action_(_.copy(sortKeys   = true)).text("Output the fields of each object with the keys in sorted order")
+    opt[Unit]('T', "trace"         ).action_(_.copy(parseTrace   = true)).text("Parse input as a trace (default)")
+    opt[Unit]('S', "state"         ).action_(_.copy(parseState   = true)).text("Parse input as a state")
+    opt[Unit]('V', "value"         ).action_(_.copy(parseValue   = true)).text("Parse input as a value")
+    opt[Unit]('f', "full"          ).action_(_.copy(fullTrace    = true)).text("Convert a diff-trace back into a full trace")
+    opt[Unit]('l', "full-last-step").action_(_.copy(fullLastStep = true)).text("Convert the last step of a diff-trace back into a full trace")
+    opt[Unit]('i', "indent"        ).action_(_.copy(indentJson   = true)).text("Indent and pretty-print JSON output")
+    opt[Unit]('s', "sort"          ).action_(_.copy(sortKeys     = true)).text("Output the fields of each object with the keys in sorted order")
 
     arg[File]("<input file>")
       .optional()
@@ -84,6 +86,10 @@ object Main {
         var trace = Steps.parseTrace(content).withJsonValues
         if (opts.fullTrace)
           trace = trace.withFullStatePerStep
+        else if (opts.fullLastStep && trace.nonEmpty) {
+          val full = trace.withFullStatePerStep
+          trace = Steps(trace.values.init :+ full.values.last)
+        }
         trace.toJson
       }
 
