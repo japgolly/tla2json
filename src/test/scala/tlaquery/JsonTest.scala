@@ -7,12 +7,16 @@ import utest._
 object JsonTest extends TestSuite {
   import Value._
 
-  private def spotCheckTestData(td: TestData, stepNo: Int)
-                               (expect: String)
-                               (implicit l: Line): Unit = {
+  private def spotCheckTestData(td: TestData, stepNo: Int)(expect: String)(implicit l: Line): Unit = {
     val actual = td.traceJson.no(stepNo).state.toJson
     assertJson(actual, expect)
   }
+
+  private def assertValueToJson(value: String, expect: String)(implicit l: Line): Unit =
+    assertValueToJson(Value.parse(value), expect)
+
+  private def assertValueToJson(value: Value, expect: String)(implicit l: Line): Unit =
+    assertJson(value.toJson, expect)
 
   override def tests = Tests {
 
@@ -24,9 +28,16 @@ object JsonTest extends TestSuite {
       assertJson(ws.toJson, """ {"w1": 2, "w2": 4, "w3": 6} """)
     }
 
+    "b1" - {
+      assertValueToJson(
+        "(ls :> [isEmpty |-> FALSE, get |-> {}])",
+        """{"ls": {"isEmpty": false, "get": []}}"""
+      )
+    }
+
     "td1_1" - spotCheckTestData(TestData1, 1)(
       """{
-        |  "browsers":["b1",[]],
+        |  "browsers":{"b1":[]},
         |  "network":[],
         |  "tabs":{"t2":{"status":"-"},"t1":{"status":"-"}},
         |  "remote":[],
@@ -59,6 +70,17 @@ object JsonTest extends TestSuite {
         |  }
         |}
         |""".stripMargin.trim
+    )
+
+    "td3_1" - spotCheckTestData(TestData3, 1)(
+      """{
+         |  "browsers":{"b1":{"ls":{"isEmpty": false, "get": []}}, "b2":{"ls":{"isEmpty": false, "get": []}}},
+         |  "network":[],
+         |  "tabs":{"t2":{"status":"-"},"t1":{"status":"-"}},
+         |  "remote":[],
+         |  "workers":{"w2":{"status":"-"},"w1":{"status":"-"}}
+         |}
+        |""".stripMargin
     )
 
   }
