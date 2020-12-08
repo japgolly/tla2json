@@ -57,8 +57,12 @@ object Steps {
   def parse(tlaOutput: String): Steps[String] = {
     import Parsers.Steps._
     var content = Parsers.preprocess(tlaOutput)
-    content = preSteps.replaceFirstIn(content, "")
-    fastparse.parse(content, steps(_)).get.value
+    if (content.contains("Model checking completed. No error has been found."))
+      apply(Vector.empty)
+    else {
+      content = preSteps.replaceFirstIn(content, "")
+      fastparse.parse(content, steps(_)).get.value
+    }
   }
 
   type Trace = Steps[State[Value]]

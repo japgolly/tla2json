@@ -70,5 +70,38 @@ object StepsTest extends TestSuite {
         |""".stripMargin
     )
 
+    "success" - {
+      val output =
+        """> cd /tmp/20201207-171946-1384467 && unbuffer tlc-colour -difftrace drafts
+          |TLC2 Version 2.15 of Day Month 20?? (rev: e389d55)
+          |Running breadth-first search Model-Checking with fp 97 and seed 2236431244207455344 with 24 workers on 24 cores with 25486MB heap and 64MB offheap memory [pid: 1384481] (Linux 5.9.11-arch2-1 amd64, GraalVM Community 11.0.8 x86_64, MSBDiskFPSet, DiskStateQueue).
+          |Parsing file /tmp/20201207-171946-1384467/drafts.tla
+          |Parsing file /tmp/FiniteSets.tla
+          |Parsing file /tmp/Naturals.tla
+          |Parsing file /tmp/Sequences.tla
+          |Parsing file /tmp/TLC.tla
+          |Parsing file /tmp/20201207-171946-1384467/Util.tla
+          |Semantic processing of module Naturals
+          |Semantic processing of module Sequences
+          |Semantic processing of module FiniteSets
+          |Semantic processing of module TLC
+          |Semantic processing of module Util
+          |Semantic processing of module drafts
+          |Starting... (2020-12-07 17:19:46)
+          |Computing initial states...
+          |Finished computing initial states: 1 distinct state generated at 2020-12-07 17:19:46.
+          |Model checking completed. No error has been found.
+          |  Estimates of the probability that TLC did not check all reachable states
+          |  because two distinct states had the same fingerprint:
+          |  calculated (optimistic):  val = 4.9E-18
+          |23 states generated, 18 distinct states found, 0 states left on queue.
+          |The depth of the complete state graph search is 13.
+          |The average outdegree of the complete state graph is 1 (minimum is 0, the maximum 2 and the 95th percentile is 2).
+          |Finished in 00s at (2020-12-07 17:19:46)
+          |""".stripMargin
+
+      val actual = Steps.parse(output)
+      assert(actual.isEmpty)
+    }
   }
 }
