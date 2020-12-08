@@ -25,10 +25,15 @@ object Step {
   }
 
   object Desc {
+
     case object Initial extends Desc {
       override def name = "Initial predicate"
     }
 
     final case class Action(name: String) extends Desc
+
+    case object Stuttering extends Desc {
+      override def name = "Stuttering"
+    }
   }
 }

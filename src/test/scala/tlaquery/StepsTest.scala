@@ -103,5 +103,28 @@ object StepsTest extends TestSuite {
       val actual = Steps.parse(output)
       assert(actual.isEmpty)
     }
+
+    "td3_10" - spotCheckTestData(TestData3, 10)(
+      """/\ browsers = ( b1 :> (ls :> [isEmpty |-> FALSE, get |-> {}]) @@
+        |  b2 :> (ls :> [isEmpty |-> FALSE, get |-> {}]) )
+        |/\ network = <<>>
+        |/\ tabs = ( t1 :> [worker |-> w1, status |-> "clean"] @@
+        |  t2 :> [worker |-> w2, status |-> "clean"] )
+        |/\ remote = {}
+        |/\ workers = ( w1 :>
+        |      [ drafts |-> {},
+        |        time |-> 1,
+        |        status |-> "live",
+        |        browser |-> b1,
+        |        sync |-> [Remote |-> [desired |-> 0, lastReq |-> 0, lastAck |-> 0]] ] @@
+        |  w2 :>
+        |      [ drafts |-> {},
+        |        time |-> 1,
+        |        status |-> "live",
+        |        browser |-> b1,
+        |        sync |-> [Remote |-> [desired |-> 0, lastReq |-> 0, lastAck |-> 0]] ] )
+        |""".stripMargin
+    )
+
   }
 }

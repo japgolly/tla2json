@@ -77,10 +77,11 @@ object TestData {
         val actual =
           steps2.values.iterator.map { s =>
             val desc = s.desc match {
-              case Desc.Initial      => "Initial"
-              case Desc.Action(name) => name
+              case Desc.Initial      => "<Initial>"
+              case Desc.Action(name) => s"<$name>"
+              case Desc.Stuttering   => "Stuttering"
             }
-            s"""State ${s.no}: <$desc>
+            s"""State ${s.no}: $desc
                |${s.state}
                |""".stripMargin.trim
           }.mkString("\n\n")

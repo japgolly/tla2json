@@ -79,24 +79,30 @@ object Parsers {
   object Steps {
     import fastparse.NoWhitespace._
     import Shared._
+    import Step.Desc
 
     val preSteps = "(?s)^(.*?\n)?(?=State 1:)".r
 
-    def descInitial[_: P]: P[Step.Desc] =
-      P("Initial predicate").map(_ => Step.Desc.Initial)
+    def descInitial[_: P]: P[Desc] =
+      P("<Initial predicate>").map(_ => Desc.Initial)
 
-    def descAction[_: P]: P[Step.Desc] =
-      P(ident.! ~ " line " ~ CharPred(_ != '>').rep).map(Step.Desc.Action)
+    def descAction[_: P]: P[Desc] =
+      P("<" ~ ident.! ~ " line " ~ CharPred(_ != '>').rep ~ ">").map(Desc.Action)
 
-    def desc[_: P]: P[Step.Desc] =
-      P(descInitial | descAction)
+    def descStuttering[_: P]: P[Desc] =
+      P("Stuttering").map(_ => Desc.Stuttering)
+
+    def desc[_: P]: P[Desc] =
+      P(descInitial | descAction | descStuttering)
 
     def state[_: P]: P[String] =
       lineNE.rep.map(_.mkString("\n"))
 
     def step[_: P]: P[Step[String]] =
-      P("State " ~ number ~ ": <" ~/ desc ~ ">\n" ~/ state)
-        .map { case (n, d, s) => Step(n, d, s) }
+      P("State " ~ number ~ ": " ~/ desc).flatMap {
+        case (n, d@ Desc.Stuttering) => Pass.map(_ => Step(n, d, ""))
+        case (n, d)                  => P("\n" ~/ state).map(Step(n, d, _))
+      }
 
     def steps[_: P]: P[Steps[String]] =
       P(step.rep(sep = "\n").map(ss => tlaquery.Steps(ss.toVector)) ~/ ("\n" | End))
