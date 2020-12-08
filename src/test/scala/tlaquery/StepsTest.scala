@@ -1,5 +1,6 @@
 package tlaquery
 
+import io.circe.Json
 import sourcecode.Line
 import tlaquery.TestUtil._
 import utest._
@@ -13,6 +14,15 @@ object StepsTest extends TestSuite {
     val e = expect.split("\n+/\\\\").filter(_.nonEmpty).map(p + _.stripPrefix(p).trim).sorted
     val a = td.fullSteps.no(stepNo).state.variables.iterator.map { case (k, v) => s"$p$k = $v" }.toArray.sorted
     assertMultiline(a.mkString("\n"), e.mkString("\n"))
+  }
+
+  private def assertStepByStep[A: UnivEq](actual: Steps[A], expect: Steps[A])(implicit l: Line): Unit = {
+    assertEq("Step count", actual.length, expect.length)
+    for (i <- expect.values.indices) {
+      val a = actual.values(i)
+      val e = expect.values(i)
+      assertEq(a, e)
+    }
   }
 
   override def tests = Tests {
@@ -126,5 +136,17 @@ object StepsTest extends TestSuite {
         |""".stripMargin
     )
 
+    "fullToDiff1" - {
+      val f = TestData1.fullTraceJson
+      val a = f.withDiffStatePerStep[Json](_ == _, lastFull = false)
+      assertStepByStep(a, TestData1.traceJson)
+    }
+
+    "fullToDiff2" - {
+      val f = TestData1.fullTraceJson
+      val a = f.withDiffStatePerStep[Json](_ == _, lastFull = true)
+      val e = Steps(TestData1.traceJson.values.dropRight(1) :+ f.values.last)
+      assertStepByStep(a, e)
+    }
   }
 }

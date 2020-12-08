@@ -7,10 +7,12 @@ import sourcecode.Line
 
 object TestUtil extends japgolly.microlibs.testutil.TestUtil {
 
-  implicit def univEqState[A: UnivEq]: UnivEq[State[A]] = UnivEq.derive
-  implicit def univEqStepDesc: UnivEq[Step.Desc] = UnivEq.derive
-  implicit def univEqValue: UnivEq[Value] = UnivEq.derive
-  implicit def univEqJson: UnivEq[Json] = UnivEq.force
+  implicit def univEqJson            : UnivEq[Json]      = UnivEq.force
+  implicit def univEqValue           : UnivEq[Value]     = UnivEq.derive
+  implicit def univEqState[A: UnivEq]: UnivEq[State[A]]  = UnivEq.derive
+  implicit def univEqStepDesc        : UnivEq[Step.Desc] = UnivEq.derive
+  implicit def univEqStep[A: UnivEq] : UnivEq[Step[A]]   = UnivEq.derive
+  implicit def univEqSteps[A: UnivEq]: UnivEq[Steps[A]]  = UnivEq.derive
 
   def assertJson(actual: Json, expect: String)(implicit l: Line): Unit = {
     val e = io.circe.parser.parse(expect).getOrThrow()

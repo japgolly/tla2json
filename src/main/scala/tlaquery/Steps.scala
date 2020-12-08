@@ -48,6 +48,29 @@ final case class Steps[+A](values: Vector[Step[A]]) {
       Steps(newSteps)
     }
 
+  def withDiffStatePerStep[B](eql: (B, B) => Boolean, lastFull: Boolean)(implicit ev: Steps[A] <:< Steps[State[B]]): Steps[State[B]] =
+    if (values.isEmpty)
+      this
+    else {
+      val self = ev(this)
+      val full = self.withFullStatePerStep.values
+      val last = values.indices.last
+      val newSteps =
+        values.indices.iterator.map { i =>
+          val step = self.values(i)
+          if (i == 0)
+            step
+          else if (lastFull && i == last)
+            full.last
+          else {
+            val prev = full(i - 1).state.variables
+            val newVars = step.state.variables.filter { case (k, v) => !eql(prev(k), v) }
+            step.copy(state = State(newVars))
+          }
+        }.toVector
+      Steps(newSteps)
+    }
+
   def toJson(implicit ev: Steps[A] <:< Steps[State[Json]]): Json =
     Json.arr(ev(this).values.map(_.toJson): _*)
 }
