@@ -1,4 +1,4 @@
-package tlaquery
+package tla2json
 
 import io.circe.Json
 import java.io._
@@ -7,7 +7,7 @@ import scala.util.Using
 
 object Main {
 
-  private final val cliName = "tla-query"
+  private final val cliName = "tla2json"
   private final val displayName = cliName
 
   final case class Options(

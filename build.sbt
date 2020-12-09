@@ -1,6 +1,6 @@
-ThisBuild / homepage     := Some(url("https://github.com/japgolly/tla-query"))
+ThisBuild / homepage     := Some(url("https://github.com/japgolly/tla2json"))
 ThisBuild / licenses     := Seq("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
-ThisBuild / organization := "com.github.japgolly.tla-query"
+ThisBuild / organization := "com.github.japgolly.tla2json"
 ThisBuild / scalaVersion := "2.13.4"
 ThisBuild / startYear    := Some(2020)
 
@@ -65,7 +65,7 @@ val utest              = "com.github.japgolly.fork"      %% "utest"        % "1.
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    name := "tla-query",
+    name := "tla2json",
 
     scalacOptions := defaultScalacOptions,
 
@@ -80,7 +80,7 @@ lazy val root = (project in file("."))
     ),
 
     buildInfoKeys := Seq[BuildInfoKey](version),
-    buildInfoPackage := "tlaquery",
+    buildInfoPackage := "tla2json",
 
     testFrameworks := List(new TestFramework("utest.runner.Framework")),
 

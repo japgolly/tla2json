@@ -1,8 +1,8 @@
-package tlaquery
+package tla2json
 
 import io.circe.Json
 import sourcecode.Line
-import tlaquery.TestUtil._
+import tla2json.TestUtil._
 import utest._
 
 object StepsTest extends TestSuite {

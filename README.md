@@ -1,6 +1,6 @@
-# TLA+ Query
+# tla2json: Convert TLA+ output and values into JSON
 
-TODO
+Documentation, instructions, background all coming soon...
 
 ## Support
 

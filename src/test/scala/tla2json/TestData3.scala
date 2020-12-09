@@ -1,4 +1,4 @@
-package tlaquery
+package tla2json
 
 object TestData3Test extends TestData.PropTest {
   override val testData = TestData3

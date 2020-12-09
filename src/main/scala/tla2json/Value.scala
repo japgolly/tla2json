@@ -1,4 +1,4 @@
-package tlaquery
+package tla2json
 
 import io.circe._
 import japgolly.microlibs.stdlib_ext.StdlibExt._

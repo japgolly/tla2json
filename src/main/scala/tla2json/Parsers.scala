@@ -1,4 +1,4 @@
-package tlaquery
+package tla2json
 
 import fastparse._
 import japgolly.microlibs.stdlib_ext.StdlibExt._
@@ -111,7 +111,7 @@ object Parsers {
       P("\n" ~ (!stepDecl ~ line).rep(0))
 
     def steps[_: P]: P[Steps[String]] =
-      P(step.rep(sep = stepSep)).map(ss => tlaquery.Steps(ss.toVector))
+      P(step.rep(sep = stepSep)).map(ss => tla2json.Steps(ss.toVector))
 
     def main[_: P]: P[Steps[String]] =
       P(steps) // Deliberately not adding ` ~ End` here because we want to ignore  the tail.

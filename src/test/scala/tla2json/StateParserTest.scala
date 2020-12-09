@@ -1,4 +1,4 @@
-package tlaquery
+package tla2json
 
 import utest._
 import TestUtil._

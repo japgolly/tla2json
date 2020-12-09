@@ -1,7 +1,7 @@
-package tlaquery
+package tla2json
 
-import tlaquery.Step.Desc
-import tlaquery.TestUtil._
+import tla2json.Step.Desc
+import tla2json.TestUtil._
 import utest._
 
 abstract class TestData {
