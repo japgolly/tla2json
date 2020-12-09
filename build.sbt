@@ -80,10 +80,17 @@ lazy val root = (project in file("."))
     ),
 
     buildInfoKeys := Seq[BuildInfoKey](version),
-    buildInfoPackage := "tla2json",
+    buildInfoPackage := name.value,
 
     testFrameworks := List(new TestFramework("utest.runner.Framework")),
 
     // logLevel in assembly := Level.Debug,
-    assemblyJarName in assembly := name.value + ".jar"
+    assemblyJarName in assembly := name.value + ".jar",
+
+    artifact in (Compile, assembly) := {
+      val art = (artifact in (Compile, assembly)).value
+      art.withClassifier(Some("assembly"))
+    },
+
+    addArtifact(artifact in (Compile, assembly), assembly)
   )
