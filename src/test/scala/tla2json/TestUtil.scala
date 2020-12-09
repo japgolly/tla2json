@@ -21,6 +21,22 @@ object TestUtil extends japgolly.microlibs.testutil.TestUtil {
     assertEq(actual, e)
   }
 
+  private def sysPropOrEnvVar(name: String): String =
+    Option(System.getProperty(name)).orElse(Option(System.getenv(name)))
+      .fold("")(_.trim.toLowerCase)
+
+  private val inCI: Boolean =
+    sysPropOrEnvVar("CI") == "1"
+
+  if (inCI)
+    println("============ CI MODE DETECTED ============")
+
+  private val defaultTimeLimit: Duration =
+    if (inCI)
+      Duration.ofSeconds(2)
+    else
+      Duration.ofSeconds(30)
+
   def timeLimitedLazy[A](task: => A)(implicit l: Line): () => A = {
     val lock = new AnyRef
     var result = Option.empty[A]
@@ -37,7 +53,7 @@ object TestUtil extends japgolly.microlibs.testutil.TestUtil {
   }
 
   def timeLimited[A](task: => A)(implicit l: Line): A =
-    runWithTimeLimit(Duration.ofSeconds(2))(task)
+    runWithTimeLimit(defaultTimeLimit)(task)
 
   def runWithTimeLimit[A](maxDur: Duration)(task: => A)(implicit l: Line): A =
     runAttemptWithTimeLimit(maxDur)(task).getOrElse(fail("Task didn't complete within " + maxDur))
