@@ -1,5 +1,6 @@
 package tla2json
 
+import io.circe.Json
 import scala.collection.immutable.ArraySeq
 
 final case class Dump[A](states: ArraySeq[State[A]]) extends AnyVal {
@@ -10,6 +11,9 @@ final case class Dump[A](states: ArraySeq[State[A]]) extends AnyVal {
 
   def map[B](f: A => B): Dump[B] =
     Dump(states.map(_.map(f)))
+
+  def toJson(implicit f: A => Json): Json =
+    Json.arr(states.map(_.toJson(f)): _*)
 }
 
 object Dump {

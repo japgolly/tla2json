@@ -11,6 +11,7 @@ object Main {
   private final val displayName = cliName
 
   final case class Options(
+      parseDump   : Boolean      = false,
       parseTrace  : Boolean      = false,
       parseState  : Boolean      = false,
       parseValue  : Boolean      = false,
@@ -29,6 +30,7 @@ object Main {
   private val optParser = new scopt.OptionParser[Options](cliName) {
     head(displayName, "v" + BuildInfo.version)
 
+    opt[Unit]('D', "dump"          ).action_(_.copy(parseDump    = true)).text("Parse input as a dump")
     opt[Unit]('T', "trace"         ).action_(_.copy(parseTrace   = true)).text("Parse input as a trace (default)")
     opt[Unit]('S', "state"         ).action_(_.copy(parseState   = true)).text("Parse input as a state")
     opt[Unit]('V', "value"         ).action_(_.copy(parseValue   = true)).text("Parse input as a value")
@@ -47,7 +49,7 @@ object Main {
       import o._
 
       val result =
-        if (List(parseTrace, parseState, parseValue).count(identity) > 1)
+        if (List(parseDump, parseTrace, parseState, parseValue).count(identity) > 1)
           failure("Only one parse method can be specified.")
         else if (toDiffTrace & toFullTrace)
           failure("Did you want a diff trace or a full trace?")
@@ -86,6 +88,8 @@ object Main {
         Value.parse(content).toJson
       else if (opts.parseState)
         State.parse(content).toJson(Value.parse(_).toJson)
+      else if (opts.parseDump)
+        Dump.parse(content).toJson(Value.parse(_).toJson)
       else {
         var trace = Steps.parseTrace(content).withJsonValues
         if (opts.toFullTrace)
