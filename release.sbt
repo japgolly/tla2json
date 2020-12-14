@@ -30,6 +30,7 @@ releaseProcess := Seq[ReleaseStep](
   tagRelease,
   releaseStepCommand("publishSigned"),
   releaseStepCommand("sonatypeBundleRelease"),
+  releaseStepCommand("assembly"),
   setNextVersion,
   commitNextVersion,
   pushChanges
