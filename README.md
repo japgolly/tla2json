@@ -2,6 +2,23 @@
 
 Documentation, instructions, background all coming soon...
 
+## Installation
+
+* Arch Linux: `tla2json` is in the [AUR](https://aur.archlinux.org/packages/tla2json/)
+
+    ```sh
+    yay -S tla2json
+    tla2json --help
+    ```
+
+* Everything else:
+
+    ```sh
+    wget https://github.com/japgolly/tla2json/releases/download/v1.0.0/tla2json.jar
+    java -jar tla2json.jar --help
+    ```
+
+
 ## Support
 
 If you like what I do
