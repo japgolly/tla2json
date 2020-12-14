@@ -85,5 +85,6 @@ lazy val root = (project in file("."))
     testFrameworks := List(new TestFramework("utest.runner.Framework")),
 
     // logLevel in assembly := Level.Debug,
-    assemblyJarName in assembly := name.value + ".jar"
+    assemblyJarName in assembly := name.value + ".jar",
+    test in assembly := {}
   )

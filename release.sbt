@@ -28,9 +28,10 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
+  runClean, // so that we rebuild with the correct version in BuildInfo
   releaseStepCommand("publishSigned"),
   releaseStepCommand("sonatypeBundleRelease"),
-  releaseStepCommand("assembly"),
+  releaseStepCommand("assembly"), // Generate now for manual upload to the Github release
   setNextVersion,
   commitNextVersion,
   pushChanges
