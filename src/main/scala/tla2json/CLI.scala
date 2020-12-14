@@ -5,7 +5,7 @@ import java.io._
 import java.nio.charset.StandardCharsets
 import scala.util.Using
 
-object Main {
+object CLI {
 
   private final val cliName = "tla2json"
   private final val displayName = cliName
@@ -29,6 +29,7 @@ object Main {
 
   private val optParser = new scopt.OptionParser[Options](cliName) {
     head(displayName, "v" + BuildInfo.version)
+    head()
 
     opt[Unit]('D', "dump"          ).action_(_.copy(parseDump    = true)).text("Parse input as a dump")
     opt[Unit]('T', "trace"         ).action_(_.copy(parseTrace   = true)).text("Parse input as a trace (default)")
