@@ -2,6 +2,7 @@ package tla2json
 
 import io.circe._
 import japgolly.microlibs.stdlib_ext.StdlibExt._
+import scala.collection.immutable.ArraySeq
 
 sealed trait Value {
   import Value._
@@ -56,13 +57,13 @@ object Value {
   final case class ModelValue(value: String) extends Value
 
   /** <<...>> */
-  final case class Seq(value: Vector[Value]) extends Value
+  final case class Seq(value: ArraySeq[Value]) extends Value
 
   /** {...} */
-  final case class Set(value: Vector[Value]) extends Value
+  final case class Set(value: ArraySeq[Value]) extends Value
 
   /** [kₙ |-> vₙ] */
-  final case class Rec(value: Vector[(String, Value)]) extends Value
+  final case class Rec(value: ArraySeq[(String, Value)]) extends Value
 
   final case class :>(lhs: Value, rhs: Value) extends Value
 

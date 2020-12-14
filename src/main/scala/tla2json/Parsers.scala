@@ -3,7 +3,7 @@ package tla2json
 import fastparse._
 import japgolly.microlibs.stdlib_ext.StdlibExt._
 import scala.annotation._
-import scala.collection.immutable.VectorMap
+import scala.collection.immutable.{ArraySeq, VectorMap}
 
 object Parsers {
 
@@ -111,7 +111,7 @@ object Parsers {
       P("\n" ~ (!stepDecl ~ line).rep(0))
 
     def steps[_: P]: P[Steps[String]] =
-      P(step.rep(sep = stepSep)).map(ss => tla2json.Steps(ss.toVector))
+      P(step.rep(sep = stepSep)).map(ss => tla2json.Steps(ss.to(ArraySeq)))
 
     def main[_: P]: P[Steps[String]] =
       P(steps) // Deliberately not adding ` ~ End` here because we want to ignore  the tail.
@@ -185,13 +185,13 @@ object Parsers {
       ident.map(ModelValue)
 
     def seq[_: P]: P[Value] =
-      P("<<" ~ value.rep(sep = ",") ~ ">>").map(vs => Seq(vs.toVector))
+      P("<<" ~ value.rep(sep = ",") ~ ">>").map(vs => Seq(vs.to(ArraySeq)))
 
     def set[_: P]: P[Value] =
-      P("{" ~ value.rep(sep = ",") ~ "}").map(vs => Set(vs.toVector))
+      P("{" ~ value.rep(sep = ",") ~ "}").map(vs => Set(vs.to(ArraySeq)))
 
     def rec[_: P]: P[Value] =
-      P("[" ~ (ident ~ "|->" ~ value).rep(sep = ",") ~ "]").map(kvs => Rec(kvs.toVector))
+      P("[" ~ (ident ~ "|->" ~ value).rep(sep = ",") ~ "]").map(kvs => Rec(kvs.to(ArraySeq)))
 
     def :>[_: P](v: => P[Value]): P[Value] =
       infixOpU(v, P(":>"))(Value.:>)

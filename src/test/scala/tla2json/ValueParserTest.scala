@@ -2,6 +2,7 @@ package tla2json
 
 import utest._
 import TestUtil._
+import scala.collection.immutable.ArraySeq
 import sourcecode.Line
 import utest.framework.TestPath
 
@@ -35,23 +36,23 @@ object ValueParserTest extends TestSuite {
     }
 
     "set" - {
-      "{}" - assertParseOk(Set(Vector.empty))
-      "{{}}" - assertParseOk(Set(Vector(Set(Vector.empty))))
-      "{1,2,3}" - assertParseOk(Set(Vector(Nat(1), Nat(2), Nat(3))))
+      "{}" - assertParseOk(Set(ArraySeq.empty))
+      "{{}}" - assertParseOk(Set(ArraySeq(Set(ArraySeq.empty))))
+      "{1,2,3}" - assertParseOk(Set(ArraySeq(Nat(1), Nat(2), Nat(3))))
     }
 
     "seq" - {
-      "<<>>" - assertParseOk(Seq(Vector.empty))
-      "<< >>" - assertParseOk(Seq(Vector.empty))
-      "<< << >> >>" - assertParseOk(Seq(Vector(Seq(Vector.empty))))
-      "<<<<>>>>" - assertParseOk(Seq(Vector(Seq(Vector.empty))))
-      "<<1,2,3>>" - assertParseOk(Seq(Vector(Nat(1), Nat(2), Nat(3))))
+      "<<>>" - assertParseOk(Seq(ArraySeq.empty))
+      "<< >>" - assertParseOk(Seq(ArraySeq.empty))
+      "<< << >> >>" - assertParseOk(Seq(ArraySeq(Seq(ArraySeq.empty))))
+      "<<<<>>>>" - assertParseOk(Seq(ArraySeq(Seq(ArraySeq.empty))))
+      "<<1,2,3>>" - assertParseOk(Seq(ArraySeq(Nat(1), Nat(2), Nat(3))))
     }
 
     "rec" - {
-      "[]" - assertParseOk(Rec(Vector.empty))
-      "[blah_2 |-> 2]" - assertParseOk(Rec(Vector("blah_2" -> Nat(2))))
-      "[a |-> [b|->8], c |-> 3]" - assertParseOk(Rec(Vector("a" -> Rec(Vector("b" -> Nat(8))), "c" -> Nat(3))))
+      "[]" - assertParseOk(Rec(ArraySeq.empty))
+      "[blah_2 |-> 2]" - assertParseOk(Rec(ArraySeq("blah_2" -> Nat(2))))
+      "[a |-> [b|->8], c |-> 3]" - assertParseOk(Rec(ArraySeq("a" -> Rec(ArraySeq("b" -> Nat(8))), "c" -> Nat(3))))
     }
 
     "modelValue" - {
@@ -86,13 +87,13 @@ object ValueParserTest extends TestSuite {
           """( t1 :> [drafts |-> {}, worker |-> w2, status |-> "loading", awaiting |-> {}] @@
             |  t2 :> [worker |-> w1, status |-> "clean"] )
             |""".stripMargin
-        val t1 = ModelValue("t1") :> Rec(Vector(
-          "drafts" -> Set(Vector.empty),
+        val t1 = ModelValue("t1") :> Rec(ArraySeq(
+          "drafts" -> Set(ArraySeq.empty),
           "worker" -> ModelValue("w2"),
           "status" -> Str("loading"),
-          "awaiting" -> Set(Vector.empty),
+          "awaiting" -> Set(ArraySeq.empty),
         ))
-        val t2 = ModelValue("t2") :> Rec(Vector(
+        val t2 = ModelValue("t2") :> Rec(ArraySeq(
           "worker" -> ModelValue("w1"),
           "status" -> Str("clean"),
         ))
