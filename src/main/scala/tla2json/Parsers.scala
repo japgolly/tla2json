@@ -76,6 +76,27 @@ object Parsers {
   }
 
   // ===================================================================================================================
+  object Dump {
+    import fastparse.NoWhitespace._
+    import Shared._
+
+    def stateHeader[_: P]: P[Unit] =
+      P("\n".rep(0) ~ "State " ~ CharIn("0-9").rep(1) ~ ":" ~ EOL)
+
+    def stateBody[_: P]: P[State[String]] =
+      States.state
+
+    def state[_: P]: P[State[String]] =
+      stateHeader ~/ stateBody
+
+    def dump[_: P]: P[Dump[String]] =
+      P(state.rep(sep = blankLine.rep)).map(ss => tla2json.Dump(ss.to(ArraySeq)))
+
+    def main[_: P]: P[Dump[String]] =
+      P(dump ~ End)
+  }
+
+  // ===================================================================================================================
   object Steps {
     import fastparse.NoWhitespace._
     import Shared._
@@ -114,7 +135,7 @@ object Parsers {
       P(step.rep(sep = stepSep)).map(ss => tla2json.Steps(ss.to(ArraySeq)))
 
     def main[_: P]: P[Steps[String]] =
-      P(steps) // Deliberately not adding ` ~ End` here because we want to ignore  the tail.
+      P(steps) // Deliberately not adding ` ~ End` here because we want to ignore the tail.
   }
 
   // ===================================================================================================================
