@@ -1,6 +1,5 @@
 package tla2json
 
-import io.circe.Json
 import scala.collection.immutable.ArraySeq
 import sourcecode.Line
 import tla2json.TestUtil._
