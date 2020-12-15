@@ -69,15 +69,16 @@ object TestUtil extends japgolly.microlibs.testutil.TestUtil {
     def complete(r: Option[A]) = {
       val notify =
         lock.synchronized {
+          if (r.isEmpty && thread != null) {
+            thread.interrupt()
+            thread = null
+          }
+          timer.cancel()
           if (done)
             false
           else {
             done = true
             result = r
-            if (r.isEmpty) {
-              if (thread ne null) thread.interrupt()
-            } else
-              timer.cancel()
             true
           }
         }
@@ -99,9 +100,6 @@ object TestUtil extends japgolly.microlibs.testutil.TestUtil {
           complete(None)
       }
 
-      thread = new Thread(taskRunnable)
-      thread.start()
-
       val timeout = new TimerTask {
         override def run(): Unit = {
           complete(None)
@@ -109,6 +107,9 @@ object TestUtil extends japgolly.microlibs.testutil.TestUtil {
       }
 
       timer.schedule(timeout, maxDur.toMillis)
+
+      thread = new Thread(taskRunnable)
+      thread.start()
 
       sync.synchronized {
         sync.wait(maxDur.toMillis)
