@@ -23,7 +23,7 @@ The simplest and most common example is you checking your (non-trivial) model
 and TLC finds a counter-example. Trying to make sense of a trace with many steps and/or
 a large state space is immensely time-consuming and difficult. By converting the trace
 to a widely-used format such as JSON, you can easily transform and/or query the data using
-ubiquitous tools like [`jq`](https://stedolan.github.io/jq/), and sense of your data much faster.
+ubiquitous tools like [`jq`](https://stedolan.github.io/jq/), and get a sense of your data much faster.
 
 A personal anecdote is me spending over 10 minutes trying to comprehend hundreds of lines of
 TLA+ state, vs looking at a summary as a single-page table and comprehending the situation in under 10 seconds.
@@ -89,42 +89,42 @@ I'll even pass a `-f` flag to `tla2json` to convert my diff-trace into a full tr
 even if the `tabs` state didn't change on a step, it still shows me what the state is).
 
 ```
-> tla2json -f <output.log | jq -c '.[] | {no, tabs: [.state.tabs[].status], name }'
+> tla2json -f <output.log | jq -c '.[] | {no, tabs: [.state.tabs[].status]}'
 
-{"no":1,"tabs":["-","-"],"name":"Initial predicate"}
-{"no":2,"tabs":["loading","-"],"name":"TabNew"}
-{"no":3,"tabs":["loading","-"],"name":"TabLoad"}
-{"no":4,"tabs":["loading","loading"],"name":"TabNew"}
-{"no":5,"tabs":["loading","loading"],"name":"TabLoad"}
-{"no":6,"tabs":["clean","loading"],"name":"TabStart"}
-{"no":7,"tabs":["clean","clean"],"name":"TabStart"}
-{"no":8,"tabs":["dirty","clean"],"name":"UserEditClean"}
-{"no":9,"tabs":["dirty","clean"],"name":"UserAbort"}
-{"no":10,"tabs":["dirty","clean"],"name":"TabSendChangesToWorker"}
-{"no":11,"tabs":["dirty","clean"],"name":"WorkerRecvChanges"}
-{"no":12,"tabs":["dirty","dirty"],"name":"TabRecvDraftsFromWorker"}
-{"no":13,"tabs":["clean","dirty"],"name":"TabRecvDraftsFromWorker"}
-{"no":14,"tabs":["clean","dirty"],"name":"TabSendTombstonesToWorker"}
-{"no":15,"tabs":["clean","dirty"],"name":"WorkerSendRemoteStoreCmd"}
-{"no":16,"tabs":["clean","dirty"],"name":"TabRecvRemoteStoreCmd"}
-{"no":17,"tabs":["clean","dirty"],"name":"RemoteRecvDrafts"}
-{"no":18,"tabs":["clean","dirty"],"name":"WorkerRecvChanges"}
-{"no":19,"tabs":["clean","dirty"],"name":"TabRecvDraftsFromWorker"}
-{"no":20,"tabs":["clean","dirty"],"name":"TabRecvDraftsFromWorker"}
-{"no":21,"tabs":["clean","dirty"],"name":"TabRecvRemoteAck"}
-{"no":22,"tabs":["clean","dirty"],"name":"TabSendTombstonesToWorker"}
-{"no":23,"tabs":["clean","dirty"],"name":"WorkerRecvChanges"}
-{"no":24,"tabs":["clean","dirty"],"name":"WorkerRecvRemoteAck"}
-{"no":25,"tabs":["clean","dirty"],"name":"WorkerSendRemoteStoreCmd"}
-{"no":26,"tabs":["clean","dirty"],"name":"TabRecvRemoteStoreCmd"}
-{"no":27,"tabs":["clean","dirty"],"name":"RemoteRecvDrafts"}
-{"no":28,"tabs":["dirty","dirty"],"name":"TabRecvDraftsFromRemote"}
-{"no":29,"tabs":["dirty","dirty"],"name":"TabRecvDraftsFromRemote"}
-{"no":30,"tabs":["dirty","dirty"],"name":"TabRecvRemoteAck"}
-{"no":31,"tabs":["dirty","dirty"],"name":"WorkerRecvChanges"}
-{"no":32,"tabs":["dirty","dirty"],"name":"WorkerRecvChanges"}
-{"no":33,"tabs":["dirty","dirty"],"name":"WorkerRecvRemoteAck"}
-{"no":34,"tabs":["dirty","dirty"],"name":"WorkerSendRemoteStoreCmd"}
+{"no":1,"tabs":["-","-"]}
+{"no":2,"tabs":["loading","-"]}
+{"no":3,"tabs":["loading","-"]}
+{"no":4,"tabs":["loading","loading"]}
+{"no":5,"tabs":["loading","loading"]}
+{"no":6,"tabs":["clean","loading"]}
+{"no":7,"tabs":["clean","clean"]}
+{"no":8,"tabs":["dirty","clean"]}
+{"no":9,"tabs":["dirty","clean"]}
+{"no":10,"tabs":["dirty","clean"]}
+{"no":11,"tabs":["dirty","clean"]}
+{"no":12,"tabs":["dirty","dirty"]}
+{"no":13,"tabs":["clean","dirty"]}
+{"no":14,"tabs":["clean","dirty"]}
+{"no":15,"tabs":["clean","dirty"]}
+{"no":16,"tabs":["clean","dirty"]}
+{"no":17,"tabs":["clean","dirty"]}
+{"no":18,"tabs":["clean","dirty"]}
+{"no":19,"tabs":["clean","dirty"]}
+{"no":20,"tabs":["clean","dirty"]}
+{"no":21,"tabs":["clean","dirty"]}
+{"no":22,"tabs":["clean","dirty"]}
+{"no":23,"tabs":["clean","dirty"]}
+{"no":24,"tabs":["clean","dirty"]}
+{"no":25,"tabs":["clean","dirty"]}
+{"no":26,"tabs":["clean","dirty"]}
+{"no":27,"tabs":["clean","dirty"]}
+{"no":28,"tabs":["dirty","dirty"]}
+{"no":29,"tabs":["dirty","dirty"]}
+{"no":30,"tabs":["dirty","dirty"]}
+{"no":31,"tabs":["dirty","dirty"]}
+{"no":32,"tabs":["dirty","dirty"]}
+{"no":33,"tabs":["dirty","dirty"]}
+{"no":34,"tabs":["dirty","dirty"]}
 ```
 
 ## Installation
