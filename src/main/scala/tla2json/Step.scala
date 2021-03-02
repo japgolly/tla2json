@@ -10,6 +10,9 @@ final case class Step[+A](no: Int, desc: Step.Desc, state: A) {
   def parseState(implicit ev: Step[A] <:< Step[String]): Step[State[Value]] =
     ev(this).map(State.parse(_).map(Value.parse))
 
+  def unpackStateRecord(implicit ev: Step[A] <:< Step[Value.Rec]): Step[State[Value]] =
+    ev(this).map(State.fromRecord)
+
   def toJson(implicit ev: A <:< State[Json]): Json =
     Json.obj(
       "no" -> Json.fromInt(no),
