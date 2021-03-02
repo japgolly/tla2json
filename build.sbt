@@ -1,7 +1,7 @@
 ThisBuild / homepage     := Some(url("https://github.com/japgolly/tla2json"))
 ThisBuild / licenses     := Seq("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
 ThisBuild / organization := "com.github.japgolly.tla2json"
-ThisBuild / scalaVersion := "2.13.4"
+ThisBuild / scalaVersion := "2.13.5"
 ThisBuild / startYear    := Some(2020)
 
 val defaultScalacOptions = Seq(
@@ -51,12 +51,12 @@ val defaultScalacOptions = Seq(
   "-Ypatmat-exhaust-depth", "off"
 )
 
-val circeVer    = "0.12.3"
+val circeVer    = "0.13.0"
 val microlibVer = "2.5"
 
 val circeCore          = "io.circe"                      %% "circe-core"   % circeVer
 val circeParser        = "io.circe"                      %% "circe-parser" % circeVer
-val fastParse          = "com.lihaoyi"                   %% "fastparse"    % "2.2.2"
+val fastParse          = "com.lihaoyi"                   %% "fastparse"    % "2.3.1"
 val microlibTestStdlib = "com.github.japgolly.microlibs" %% "stdlib-ext"   % microlibVer
 val microlibTestUtil   = "com.github.japgolly.microlibs" %% "test-util"    % microlibVer
 val scopt              = "com.github.scopt"              %% "scopt"        % "4.0.0"
