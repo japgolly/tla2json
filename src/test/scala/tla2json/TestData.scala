@@ -1,5 +1,6 @@
 package tla2json
 
+import io.circe.Json
 import scala.collection.immutable.ArraySeq
 import tla2json.Step.Desc
 import tla2json.TestUtil._
@@ -125,15 +126,11 @@ object TestData {
                       Value.Rec(ArraySeq(
                         "position" -> Value.Nat(step.no),
                         "name" -> Value.Str(d.name),
-                        "location" -> Value.Str("Unknown location"),
                       ))
-                    case Desc.Action(desc) =>
-                      val split = "^(.+?)(?: (.+))?$".r
-                      val split(name, loc) = desc
+                    case Desc.Action(name) =>
                       Value.Rec(ArraySeq(
                         "position" -> Value.Nat(step.no),
                         "name" -> Value.Str(name),
-                        "location" -> Value.Str(loc),
                       ))
                   }
                 Value.Rec(("_TEAction", tea) +: step.state.value)
@@ -143,7 +140,17 @@ object TestData {
               fail("Parser returned an empty result.")
             else {
               val actual = Value.Seq(actualRecs).toJson
-              val expect = Value.parse(output).toJson
+
+              val expect =
+                Value.parse(output)
+                  .toJson
+                  .mapArray(_.map(_.mapObject(o =>
+                    if (o.keys.exists(_ == "_TEAction"))
+                      o.remove("_TEAction").add("_TEAction", Json fromJsonObject o("_TEAction").get.asObject.get.remove("location"))
+                    else
+                      o
+                  )))
+
               assertJson(actual, expect)
             }
         }

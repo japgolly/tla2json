@@ -152,7 +152,6 @@ object Parsers {
                 tea     <- teaVal.asRecord
                 no      <- tea("position").flatMap(_.asNat).map(_.value.toInt)
                 name    <- tea("name").flatMap(_.asStr).map(_.value)
-                loc     <- tea("location").flatMap(_.asStr).map(_.value)
               } yield {
                 val desc =
                   if (name == Desc.Initial.name)
@@ -160,7 +159,7 @@ object Parsers {
                   else if (name == Desc.Stuttering.name)
                     Desc.Stuttering
                   else
-                    Desc.Action(name + " " + loc)
+                    Desc.Action(name)
                 val stepState = stepRec - "_TEAction"
                 Step(no, desc, stepState)
               }

@@ -153,6 +153,10 @@ object StepsTest extends TestSuite {
       assertStepByStep(a, e)
     }
 
+    "td5_5_desc" - {
+      assertEq(TestData5.fullTrace.no(5).desc, Step.Desc.Action("g1"))
+    }
+
     "td5_5" - {
       val step = TestData5.fullTraceJson.no(5)
       val pc = step.state.variables.get("pc").map(_.noSpacesSortKeys)
