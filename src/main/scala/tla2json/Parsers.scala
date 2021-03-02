@@ -104,6 +104,9 @@ object Parsers {
 
     val preSteps = "(?s)^(.*?\n)?(?=State 1:)".r
 
+    def isTraceFromToolboxErrorConsole(s: String): Boolean =
+      "\\b_TEAction\\b".r.pattern.matcher(s).find
+
     def descInitial[_: P]: P[Desc] =
       P("<Initial predicate>").map(_ => Desc.Initial)
 
@@ -123,7 +126,7 @@ object Parsers {
       P("State " ~ number ~ ": ")
 
     def step[_: P]: P[Step[String]] =
-      P(stepDecl  ~/ desc).flatMap {
+      P(stepDecl ~/ desc).flatMap {
         case (n, d@ Desc.Stuttering) => Pass.map(_ => Step(n, d, ""))
         case (n, d)                  => P("\n" ~/ state).map(Step(n, d, _))
       }
@@ -134,8 +137,35 @@ object Parsers {
     def steps[_: P]: P[Steps[String]] =
       P(step.rep(sep = stepSep)).map(ss => tla2json.Steps(ss.to(ArraySeq)))
 
-    def main[_: P]: P[Steps[String]] =
+    def traceFromTlcOutput[_: P]: P[Steps[String]] =
       P(steps) // Deliberately not adding ` ~ End` here because we want to ignore the tail.
+
+    def traceFromToolboxErrorConsole[_: P]: P[Steps[Value.Rec]] =
+      Values.seq.map { seq =>
+        val steps: ArraySeq[Step[Value.Rec]] =
+          seq.value.map { stepValue =>
+
+            val maybeStep =
+              for {
+                stepRec <- stepValue.asRecord
+                teaVal  <- stepRec("_TEAction").left.map(_ => "Not all steps have the required _TEAction key.")
+                tea     <- teaVal.asRecord
+                no      <- tea("position").flatMap(_.asNat).map(_.value.toInt)
+                name    <- tea("name").flatMap(_.asStr).map(_.value)
+              } yield {
+                val desc = Desc(name)
+                val stepState = stepRec - "_TEAction"
+                Step(no, desc, stepState)
+              }
+
+            maybeStep match {
+              case Right(v) => v
+              case Left(err) => throw new RuntimeException("Invalid stack trace: " + err)
+            }
+          }
+
+        tla2json.Steps(steps)
+      }
   }
 
   // ===================================================================================================================
@@ -205,7 +235,7 @@ object Parsers {
     def modelValue[_: P]: P[Value] =
       ident.map(ModelValue)
 
-    def seq[_: P]: P[Value] =
+    def seq[_: P]: P[Seq] =
       P("<<" ~ value.rep(sep = ",") ~ ">>").map(vs => Seq(vs.to(ArraySeq)))
 
     def set[_: P]: P[Value] =

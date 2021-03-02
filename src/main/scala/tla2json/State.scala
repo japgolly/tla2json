@@ -21,4 +21,6 @@ object State {
       Parsers.States.main(_)
     ).get.value
 
+  def fromRecord(rec: Value.Rec): State[Value] =
+    State(rec.value.to(VectorMap))
 }

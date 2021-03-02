@@ -1,5 +1,7 @@
 package tla2json
 
+import io.circe.Json
+import scala.collection.immutable.ArraySeq
 import tla2json.Step.Desc
 import tla2json.TestUtil._
 import utest._
@@ -8,11 +10,11 @@ abstract class TestData {
 
   val output: String
 
-  private final val _steps: () => Steps[String] =
+  private final val _steps: () => Steps.Parsed =
     timeLimitedLazy(Steps.parse(output))
 
   private final val _trace: () => Steps.Trace =
-    timeLimitedLazy(_steps().map(_.parseState))
+    timeLimitedLazy(Steps.parseTrace(_steps()))
 
   private final val _traceJson =
     timeLimitedLazy(_trace().withJsonValues)
@@ -24,7 +26,10 @@ abstract class TestData {
     timeLimitedLazy(_trace().withFullStatePerStep)
 
   private final val _fullSteps =
-    timeLimitedLazy(_steps().mapSteps(State.parse).withFullStatePerStep)
+    timeLimitedLazy(
+      _steps()
+        .fold(_.mapSteps(State.fromRecord(_).map(_.toJson.spaces2SortKeys)), _.mapSteps(State.parse))
+        .withFullStatePerStep)
 
   final def steps         = _steps()
   final def trace         = _trace()
@@ -39,25 +44,26 @@ object TestData {
   abstract class PropTest extends TestSuite {
 
     val testData: TestData
-    def firstPostStateLine: String
+    def firstPostStateLine = ""
 
     import testData._
 
-    def traceLines: String =
-      output.slice(
-        output.indexOf("\nState 1:"),
-        output.indexOf("\n" + firstPostStateLine))
+    def traceLines: String = {
+      val start = output.indexOf("\nState 1:").max(0)
+      val end = if (firstPostStateLine.isEmpty) output.length - 1 else output.indexOf("\n" + firstPostStateLine)
+      output.slice(start, end)
+    }
 
     final override def tests = Tests {
 
       "totalSteps" - {
-        val r = "^State \\d+:.*".r.pattern
+        val r = "(?:^State \\d+:.*)|(?:\\b_TEAction\\b)".r.pattern
         val e = output.linesIterator.count(r.matcher(_).find())
-        assertEq(steps.length, e)
+        assertEq(trace.length, e)
       }
 
       "eachStep" - {
-        val ss = steps.values
+        val ss = trace.values
         for (i <- ss.indices) {
           val s = ss(i)
           assertEq(s.desc == Step.Desc.Initial, i == 0)
@@ -73,36 +79,75 @@ object TestData {
       }
 
       "reconstruction" - {
-        val steps2 =
-          steps.map(_.map { s1 =>
-            val s2 = State.parse(s1)
-            val s3 = s2.variables.iterator.map { case (k, v) => s"/\\ $k = $v" }.mkString("\n")
-            s3
-          })
+        steps match {
 
-        val actual =
-          steps2.values.iterator.map { s =>
-            val desc = s.desc match {
-              case Desc.Initial      => "<Initial>"
-              case Desc.Action(name) => s"<$name>"
-              case Desc.Stuttering   => "Stuttering"
+          case Right(strSteps) =>
+
+            val steps2 =
+              strSteps.map(_.map { s1 =>
+                val s2 = State.parse(s1)
+                val s3 = s2.variables.iterator.map { case (k, v) => s"/\\ $k = $v" }.mkString("\n")
+                s3
+              })
+
+            val actual =
+              steps2.values.iterator.map { s =>
+                val desc = s.desc match {
+                  case Desc.Initial      => "<Initial>"
+                  case Desc.Action(name) => s"<$name>"
+                  case Desc.Stuttering   => "Stuttering"
+                }
+                s"""State ${s.no}: $desc
+                   |${s.state}
+                   |""".stripMargin.trim
+              }.mkString("\n\n")
+
+            val expect =
+              traceLines
+                .replaceAll("(?m)^(State \\d+: <.+?) .*>$", "$1>")
+                .trim
+
+            //        println("#"*120)
+            //        println(expect)
+            //        println("#"*120)
+
+            if (actual.trim.isEmpty)
+              fail("Parser returned an empty result.")
+            else
+              assertMultiline(actual, expect)
+
+          case Left(valSteps) =>
+
+            val actualRecs =
+              valSteps.values.map { step =>
+                val tea =
+                  Value.Rec(ArraySeq(
+                    "position" -> Value.Nat(step.no),
+                    "name" -> Value.Str(step.desc.name),
+                  ))
+                Value.Rec(("_TEAction", tea) +: step.state.value)
+              }
+
+            if (actualRecs.isEmpty)
+              fail("Parser returned an empty result.")
+            else {
+              val actual = Value.Seq(actualRecs).toJson
+
+              val expect =
+                Value.parse(output)
+                  .toJson
+                  .mapArray(_.map(_.mapObject(o =>
+                    if (o.keys.exists(_ == "_TEAction"))
+                      o.remove("_TEAction").add("_TEAction", Json fromJsonObject o("_TEAction").get.asObject.get.remove("location"))
+                    else
+                      o
+                  )))
+
+              assertJson(actual, expect)
             }
-            s"""State ${s.no}: $desc
-               |${s.state}
-               |""".stripMargin.trim
-          }.mkString("\n\n")
-
-        val expect =
-          traceLines
-            .replaceAll("(?m)^(State \\d+: <.+?) .*>$", "$1>")
-            .trim
-
-//        println("#"*120)
-//        println(expect)
-//        println("#"*120)
-
-        assertMultiline(actual, expect)
+        }
       }
+
     }
   }
 

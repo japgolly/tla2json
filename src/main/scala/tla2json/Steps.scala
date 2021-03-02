@@ -82,20 +82,30 @@ final case class Steps[+A](values: ArraySeq[Step[A]]) {
 
 object Steps {
 
-  def parse(tlaOutput: String): Steps[String] = {
+  type Parsed = Either[Steps[Value.Rec], Steps[String]]
+
+  def parse(tlaOutput: String): Parsed = {
     import Parsers.Steps._
     var content = Parsers.preprocess(tlaOutput)
-    if (content.contains("Model checking completed. No error has been found."))
-      apply(ArraySeq.empty)
+    if (isTraceFromToolboxErrorConsole(content))
+      Left(fastparse.parse(content, traceFromToolboxErrorConsole(_)).get.value)
+    else if (content.contains("Model checking completed. No error has been found."))
+      Left(apply(ArraySeq.empty))
     else {
       content = preSteps.replaceFirstIn(content, "")
-      fastparse.parse(content, main(_)).get.value
+      Right(fastparse.parse(content, traceFromTlcOutput(_)).get.value)
     }
   }
 
   type Trace = Steps[State[Value]]
 
   def parseTrace(tlaOutput: String): Trace =
-    parse(tlaOutput).map(_.parseState)
+    parseTrace(parse(tlaOutput))
+
+  def parseTrace(parsed: Parsed): Trace =
+    parsed match {
+      case Right(s) => s.map(_.parseState)
+      case Left(s)  => s.map(_.unpackStateRecord)
+    }
 
 }

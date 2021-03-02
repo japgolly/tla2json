@@ -10,6 +10,9 @@ final case class Step[+A](no: Int, desc: Step.Desc, state: A) {
   def parseState(implicit ev: Step[A] <:< Step[String]): Step[State[Value]] =
     ev(this).map(State.parse(_).map(Value.parse))
 
+  def unpackStateRecord(implicit ev: Step[A] <:< Step[Value.Rec]): Step[State[Value]] =
+    ev(this).map(State.fromRecord)
+
   def toJson(implicit ev: A <:< State[Json]): Json =
     Json.obj(
       "no" -> Json.fromInt(no),
@@ -35,5 +38,13 @@ object Step {
     case object Stuttering extends Desc {
       override def name = "Stuttering"
     }
+
+    def apply(name: String): Desc =
+      if (name == Initial.name)
+        Initial
+      else if (name == Stuttering.name)
+        Stuttering
+      else
+        Action(name)
   }
 }

@@ -4,7 +4,7 @@ import io.circe._
 import japgolly.microlibs.stdlib_ext.StdlibExt._
 import scala.collection.immutable.ArraySeq
 
-sealed trait Value {
+sealed abstract class Value(final val descType: String) {
   import Value._
 
   final def :>(that: Value) = Value.:>(this, that)
@@ -44,30 +44,60 @@ sealed trait Value {
         }
     }
   }
+
+  final def asNat: Either[String, Nat] =
+    this match {
+      case n: Nat => Right(n)
+      case _      => Left("Expected a Nat, got a " + descType)
+    }
+
+  final def asStr: Either[String, Str] =
+    this match {
+      case s: Str => Right(s)
+      case _      => Left("Expected a string, got a " + descType)
+    }
+
+  final def asRecord: Either[String, Rec] =
+    this match {
+      case r: Rec => Right(r)
+      case _      => Left("Expected a record, got a " + descType)
+    }
 }
 
 object Value {
 
-  final case class Bool(value: Boolean) extends Value
+  final case class Bool(value: Boolean) extends Value("boolean")
 
-  final case class Nat(value: Long) extends Value
+  final case class Nat(value: Long) extends Value("Nat")
 
-  final case class Str(value: String) extends Value
+  final case class Str(value: String) extends Value("string")
 
-  final case class ModelValue(value: String) extends Value
+  final case class ModelValue(value: String) extends Value("model value")
 
   /** <<...>> */
-  final case class Seq(value: ArraySeq[Value]) extends Value
+  final case class Seq(value: ArraySeq[Value]) extends Value("sequence")
 
   /** {...} */
-  final case class Set(value: ArraySeq[Value]) extends Value
+  final case class Set(value: ArraySeq[Value]) extends Value("set")
 
   /** [kₙ |-> vₙ] */
-  final case class Rec(value: ArraySeq[(String, Value)]) extends Value
+  final case class Rec(value: ArraySeq[(String, Value)]) extends Value("record") {
+    def apply(k: String): Either[String, Value] =
+      value.find(_._1 == k) match {
+        case Some((_, v)) => Right(v)
+        case None         => Left(s"'$k' key not found")
+      }
 
-  final case class :>(lhs: Value, rhs: Value) extends Value
+    def filterKeys(f: String => Boolean): Rec =
+      Rec(value.filter(x => f(x._1)))
 
-  final case class @@(lhs: Value, rhs: Value) extends Value {
+    def -(keyToRemove: String) =
+      filterKeys(_ != keyToRemove)
+  }
+
+  final case class :>(lhs: Value, rhs: Value) extends Value("(X :> Y)")
+
+  final case class @@(lhs: Value, rhs: Value) extends Value("(X @@ Y)") {
     def toRecord: Option[List[(String, Value)]] = {
       var found = List.empty[(String, Value)]
 

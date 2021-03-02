@@ -8,7 +8,7 @@ object StepParserTest extends TestSuite {
   override def tests = Tests {
 
     "steps" - {
-      import TestData1.steps
+      val steps = TestData1.steps.getOrThrow()
 
       "len" - assertEq(steps.length, 43)
 

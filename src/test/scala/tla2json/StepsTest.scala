@@ -36,6 +36,10 @@ object StepsTest extends TestSuite {
         |""".stripMargin
     )
 
+    "td1_2_desc" - {
+      assertEq(TestData1.fullTrace.no(2).desc, Step.Desc.Action("TabNew"))
+    }
+
     "td1_2" - spotCheckTestData(TestData1, 2)(
       """/\ tabs = ( t1 :> [status |-> "-"] @@
         |  t2 :>
@@ -111,7 +115,7 @@ object StepsTest extends TestSuite {
           |""".stripMargin
 
       val actual = Steps.parse(output)
-      assert(actual.isEmpty)
+      assert(actual.fold(_.isEmpty, _.isEmpty))
     }
 
     "td3_10" - spotCheckTestData(TestData3, 10)(
@@ -148,5 +152,16 @@ object StepsTest extends TestSuite {
       val e = Steps(TestData1.traceJson.values.dropRight(1) :+ f.values.last)
       assertStepByStep(a, e)
     }
+
+    "td5_5_desc" - {
+      assertEq(TestData5.fullTrace.no(5).desc, Step.Desc.Action("g1"))
+    }
+
+    "td5_5" - {
+      val step = TestData5.fullTraceJson.no(5)
+      val pc = step.state.variables.get("pc").map(_.noSpacesSortKeys)
+      assertEq(pc, Some("""{"p1":"main3"}"""))
+    }
+
   }
 }

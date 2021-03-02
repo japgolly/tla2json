@@ -18,8 +18,12 @@ object TestUtil extends japgolly.microlibs.testutil.TestUtil {
     val e = io.circe.parser.parse(expect).getOrThrow()
     if (expect == "666")
       println(actual.noSpaces)
-    assertEq(actual, e)
+    assertJson(actual, e)
   }
+
+  def assertJson(actual: Json, expect: Json)(implicit l: Line): Unit =
+    assertMultiline(actual.spaces2SortKeys, expect.spaces2SortKeys)
+//    assertEq(actual, expect)
 
   private def sysPropOrEnvVar(name: String): String =
     Option(System.getProperty(name)).orElse(Option(System.getenv(name)))
