@@ -38,5 +38,13 @@ object Step {
     case object Stuttering extends Desc {
       override def name = "Stuttering"
     }
+
+    def apply(name: String): Desc =
+      if (name == Initial.name)
+        Initial
+      else if (name == Stuttering.name)
+        Stuttering
+      else
+        Action(name)
   }
 }

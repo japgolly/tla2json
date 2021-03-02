@@ -153,13 +153,7 @@ object Parsers {
                 no      <- tea("position").flatMap(_.asNat).map(_.value.toInt)
                 name    <- tea("name").flatMap(_.asStr).map(_.value)
               } yield {
-                val desc =
-                  if (name == Desc.Initial.name)
-                    Desc.Initial
-                  else if (name == Desc.Stuttering.name)
-                    Desc.Stuttering
-                  else
-                    Desc.Action(name)
+                val desc = Desc(name)
                 val stepState = stepRec - "_TEAction"
                 Step(no, desc, stepState)
               }

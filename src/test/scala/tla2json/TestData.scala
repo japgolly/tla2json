@@ -121,18 +121,10 @@ object TestData {
             val actualRecs =
               valSteps.values.map { step =>
                 val tea =
-                  step.desc match {
-                    case d@(Desc.Initial | Desc.Stuttering) =>
-                      Value.Rec(ArraySeq(
-                        "position" -> Value.Nat(step.no),
-                        "name" -> Value.Str(d.name),
-                      ))
-                    case Desc.Action(name) =>
-                      Value.Rec(ArraySeq(
-                        "position" -> Value.Nat(step.no),
-                        "name" -> Value.Str(name),
-                      ))
-                  }
+                  Value.Rec(ArraySeq(
+                    "position" -> Value.Nat(step.no),
+                    "name" -> Value.Str(step.desc.name),
+                  ))
                 Value.Rec(("_TEAction", tea) +: step.state.value)
               }
 
