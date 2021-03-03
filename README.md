@@ -1,7 +1,7 @@
 # tla2json: Convert TLA+ output to JSON
 
 ```
-tla2json v1.0.0
+tla2json v1.0.1
 
 Usage: tla2json [options] [<input file>]
 
@@ -139,7 +139,8 @@ even if the `tabs` state didn't change on a step, it still shows me what the sta
 * Everything else:
 
     ```sh
-    wget https://github.com/japgolly/tla2json/releases/download/v1.0.0/tla2json.jar
+    ver=1.0.1
+    wget https://github.com/japgolly/tla2json/releases/download/v$ver/tla2json-$ver.jar -O tla2json.jar
     java -jar tla2json.jar --help
     ```
 
